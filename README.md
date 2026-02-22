@@ -30,3 +30,5 @@ The repository includes the complete source code, the input CSV dataset, and the
 
 
 ##*OUTPUT*
+
+<img width="987" height="775" alt="Image" src="https://github.com/user-attachments/assets/76cc77ac-feb2-4a6a-b461-49deb9226c87" />
