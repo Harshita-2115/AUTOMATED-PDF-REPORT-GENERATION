@@ -1,37 +1,49 @@
 import pandas as pd
-from fpdf import FPDF
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import A4
 
 # Read CSV file
 data = pd.read_csv("student_marks.csv")
 
-# Analyze data
-total_students = len(data)
-average_marks = data["Marks"].mean()
-highest_marks = data["Marks"].max()
-lowest_marks = data["Marks"].min()
+# Perform Analysis
+total_marks = data["Marks"].sum()
+number_of_subjects = len(data)
+percentage = total_marks / number_of_subjects
+
+# Grade calculation
+if percentage >= 90:
+    grade = "A+"
+elif percentage >= 80:
+    grade = "A"
+elif percentage >= 70:
+    grade = "B"
+elif percentage >= 60:
+    grade = "C"
+else:
+    grade = "D"
 
 # Create PDF
-pdf = FPDF()
-pdf.add_page()
+doc = SimpleDocTemplate("Student_Report.pdf", pagesize=A4)
+styles = getSampleStyleSheet()
+elements = []
 
-pdf.set_font("Arial", "B", 16)
-pdf.cell(200, 10, "Student Marks Report", ln=True, align="C")
-pdf.ln(10)
+elements.append(Paragraph("AUTOMATED STUDENT REPORT", styles["Title"]))
+elements.append(Spacer(1, 20))
 
-pdf.set_font("Arial", size=12)
-pdf.cell(200, 10, f"Total Students: {total_students}", ln=True)
-pdf.cell(200, 10, f"Average Marks: {average_marks:.2f}", ln=True)
-pdf.cell(200, 10, f"Highest Marks: {highest_marks}", ln=True)
-pdf.cell(200, 10, f"Lowest Marks: {lowest_marks}", ln=True)
+# Add table
+table_data = [["Subject", "Marks"]]
+for i in range(len(data)):
+    table_data.append([data["Subject"][i], data["Marks"][i]])
 
-pdf.ln(10)
-pdf.cell(200, 10, "Student Data:", ln=True)
+table = Table(table_data)
+elements.append(table)
 
-for index, row in data.iterrows():
-    pdf.cell(200, 8, f"{row['Student Name']} - {row['Marks']}", ln=True)
+elements.append(Spacer(1, 20))
+elements.append(Paragraph(f"Total Marks: {total_marks}", styles["Heading2"]))
+elements.append(Paragraph(f"Percentage: {round(percentage,2)}%", styles["Heading2"]))
+elements.append(Paragraph(f"Grade: {grade}", styles["Heading2"]))
 
-# Save PDF
-pdf.output("student_report.pdf")
+doc.build(elements)
 
-print("Student Report Generated Successfully!")
-    
+print("Report Generated Successfully!")
